@@ -57,4 +57,6 @@ def upload_file_to_s3(file, acl="public-read"):
         print("Something Happened: ", e)
         return e
 
-app.run(debug=True)
+
+app.run(debug=True, port=int(os.environ.get("PORT", "5000")))
+
