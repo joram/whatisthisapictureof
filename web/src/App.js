@@ -27,7 +27,7 @@ class App extends Component {
             data.append('filename', picture.name);
         })
 
-        fetch("https://whatisthisapictureof.herokuapp.com/upload", { method: 'POST', body: data })
+        fetch("/upload", { method: 'POST', body: data })
         .then(body => body.json())
         .then(data => {
             console.log(data)
