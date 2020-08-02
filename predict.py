@@ -8,7 +8,7 @@ def figure_out_image_tags(b_file, min_prob=10):
     # write temp file
     i, path = tempfile.mkstemp(suffix=".jpg")
     with open(path, 'wb') as f:
-        f.write(b_file.read())
+        f.write(b_file)
 
     # init predictor
     execution_path = os.getcwd()

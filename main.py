@@ -21,8 +21,9 @@ def static_files(path):
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
+    content = file.read()
     upload_file_to_s3(file)
-    tags = figure_out_image_tags(file)
+    tags = figure_out_image_tags(content)
     return {"tags": tags}
 
 
