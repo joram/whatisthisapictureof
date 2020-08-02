@@ -10,10 +10,17 @@ class App extends Component {
 
     state = {
         images: [],
+        tags: [],
     }
 
     onDrop(pictures) {
         const data = new FormData();
+
+            let state = this.state;
+            state.images = []
+            state.tags = []
+            this.setState(state)
+
 
         pictures.forEach(picture => {
             data.append('file', picture);
@@ -21,27 +28,36 @@ class App extends Component {
         })
 
         fetch('http://localhost:5000/upload', { method: 'POST', body: data })
-        .then(body => {
+        .then(body => body.json())
+        .then(data => {
+            console.log(data)
             let state = this.state;
             state.images = pictures
+            state.tags = data.tags
             this.setState(state)
         });
     }
 
 
     render() {
+        let label = ""
+        if(this.state.tags.length > 0){
+            label = this.state.tags.join(", ")
+        }
+        console.log(label)
+
         return <div className="App">
-            <header className="App-header">
-                <ImageUploader
-                    withIcon={true}
-                    buttonText='Choose image'
-                    onChange={this.onDrop.bind(this)}
-                    imgExtension={['.jpg', '.gif', '.png', '.gif']}
-                    maxFileSize={5242880}
-                    withPreview={true}
-                    singleImage={true}
-                />
-            </header>
+            <h1>{label}</h1>
+            <ImageUploader
+                withIcon={true}
+                buttonText='Choose image'
+                onChange={this.onDrop.bind(this)}
+                imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                maxFileSize={5242880}
+                withPreview={true}
+                singleImage={true}
+                label={label}
+            />
         </div>
     }
 }
