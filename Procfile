@@ -1,1 +1,1 @@
-web: python3 ./main.py
+web: uwsgi uwsgi.ini
