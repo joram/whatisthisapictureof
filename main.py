@@ -1,29 +1,60 @@
-from imageai.Prediction import ImagePrediction
+#!/usr/bin/env python3
 import os
-import pprint
+from flask import Flask, send_from_directory, request, redirect
+import boto3, botocore
+from predict import figure_out_image_tags
+from flask_cors import CORS, cross_origin
+from werkzeug.utils import secure_filename
 
 
-def figure_out_image_tags(image_path, min_prob=10):
-    execution_path = os.getcwd()
-    prediction = ImagePrediction()
-    prediction.setModelTypeAsResNet()
-    prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
-    prediction.loadModel()
-
-    predictions, percentage_probabilities = prediction.predictImage(image_path, result_count=10)
-
-    tags = []
-    for index in range(len(predictions)):
-        name = predictions[index]
-        prob = percentage_probabilities[index]
-        if prob > min_prob:
-            tags.append(name)
-    return tags
+app = Flask(__name__, static_url_path='/', static_folder="./build/")
+cors = CORS(app)
 
 
-if __name__ == '__main__':
-    image_path = os.path.join(os.getcwd(), "example.jpg")
-    print(figure_out_image_tags(image_path))
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def static_files(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, 'index.html')
 
-    image_path = os.path.join(os.getcwd(), "cat.jpg")
-    print(figure_out_image_tags(image_path))
+
+@cross_origin()
+@app.route('/upload', methods=['POST'])
+def upload():
+    file = request.files['file']
+    filename = secure_filename(file.filename)
+    output = upload_file_to_s3(file)
+    return '{"foo": "bar"}'
+
+
+# ---- helpers ----
+
+
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=os.environ.get("AWS_KEY"),
+    aws_secret_access_key=os.environ.get("AWS_SECRET")
+)
+
+
+def upload_file_to_s3(file, acl="public-read"):
+    bucket_name = os.environ.get("BUCKET_NAME")
+    try:
+
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            file.filename,
+            ExtraArgs={
+                "ACL": acl,
+                "ContentType": file.content_type
+            }
+        )
+
+    except Exception as e:
+        # This is a catch all exception, edit this part to fit your needs.
+        print("Something Happened: ", e)
+        return e
+
+app.run(debug=True)
