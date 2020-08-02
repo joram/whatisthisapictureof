@@ -1,32 +1,29 @@
 from imageai.Prediction import ImagePrediction
 import os
-import pprint
+import tempfile
 
 
-def figure_out_image_tags(image_path, min_prob=10):
+def figure_out_image_tags(b_file, min_prob=10):
+
+    # write temp file
+    i, path = tempfile.mkstemp(suffix=".jpg")
+    with open(path, 'wb') as f:
+        f.write(b_file.read())
+
+    # init predictor
     execution_path = os.getcwd()
     prediction = ImagePrediction()
     prediction.setModelTypeAsResNet()
     prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
     prediction.loadModel()
 
-    predictions, percentage_probabilities = prediction.predictImage(image_path, result_count=10)
-
+    # likely tags
     tags = []
+    predictions, percentage_probabilities = prediction.predictImage(path, result_count=10)
     for index in range(len(predictions)):
         name = predictions[index]
         prob = percentage_probabilities[index]
         if prob > min_prob:
-            tags.append(name)
+            tags.append(name.replace("_", " "))
+
     return tags
-
-
-if __name__ == '__main__':
-    image_path = os.path.join(os.getcwd(), "example.jpg")
-    print(figure_out_image_tags(image_path))
-
-    image_path = os.path.join(os.getcwd(), "cat.jpg")
-    print(figure_out_image_tags(image_path))
-
-    image_path = os.path.join(os.getcwd(), "taco3.jpg")
-    print(figure_out_image_tags(image_path))

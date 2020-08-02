@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 import os
-from flask import Flask, send_from_directory, request, redirect
-import boto3, botocore
-from predict import figure_out_image_tags
+from flask import Flask, send_from_directory, request
+import boto3
 from flask_cors import CORS, cross_origin
-from werkzeug.utils import secure_filename
-
+from predict import figure_out_image_tags
 
 app = Flask(__name__, static_url_path='/', static_folder="./build/")
 cors = CORS(app)
@@ -23,9 +21,9 @@ def static_files(path):
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
-    filename = secure_filename(file.filename)
-    output = upload_file_to_s3(file)
-    return '{"foo": "bar"}'
+    upload_file_to_s3(file)
+    tags = figure_out_image_tags(file)
+    return {"tags": tags}
 
 
 # ---- helpers ----
