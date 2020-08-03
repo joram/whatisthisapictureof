@@ -4,6 +4,7 @@ from flask import Flask, send_from_directory, request
 import boto3
 from flask_cors import CORS, cross_origin
 from predict import figure_out_image_tags
+from db import create_image, get_image
 import tempfile
 
 app = Flask(__name__, static_url_path='/', static_folder="./build/")
@@ -22,8 +23,10 @@ def static_files(path):
 @app.route('/upload', methods=['POST'])
 def upload():
     path, content, filename = temp_image()
-    upload_file_to_s3(content, filename)
+    s3_path = upload_file_to_s3(content, filename)
     tags = figure_out_image_tags(path)
+    image_uid = create_image(s3_path, ",".join(tags))
+    print("wrote image:", get_image(image_uid))
     return {"tags": tags}
 
 
@@ -48,13 +51,15 @@ s3 = boto3.client(
 )
 
 
-def upload_file_to_s3(content, filename, acl="public-read"):
+def upload_file_to_s3(content, filename):
     bucket_name = os.environ.get("BUCKET_NAME")
     try:
         s3.put_object(Body=content, Bucket=bucket_name, Key=filename)
     except Exception as e:
         print("Something Happened: ", e)
         return e
+    return os.path.join(bucket_name, filename)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=int(os.environ.get("PORT", "5000")))

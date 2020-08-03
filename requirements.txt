@@ -12,3 +12,4 @@ keras
 imageai
 flask_cors
 uwsgi
+psycopg2

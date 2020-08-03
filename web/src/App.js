@@ -56,6 +56,8 @@ class App extends Component {
         }
 
         return <div className="App">
+            <br/>
+            <b>all images given to this site are saved and publicly available. Please use discretion</b>
             <h1>{label}</h1>
             {spinner}
             <ImageUploader
