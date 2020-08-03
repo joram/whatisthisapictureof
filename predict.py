@@ -26,7 +26,7 @@ def figure_out_image_tags(b_file, min_prob=10):
 
     # likely tags
     tags = []
-    predictions, percentage_probabilities = prediction.predictImage(path, result_count=10)
+    predictions, percentage_probabilities = get_prediction().predictImage(path, result_count=10)
     for index in range(len(predictions)):
         name = predictions[index]
         prob = percentage_probabilities[index]
