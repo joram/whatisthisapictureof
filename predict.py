@@ -14,7 +14,7 @@ def get_prediction():
     prediction = ImagePrediction()
     prediction.setModelTypeAsResNet()
     prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
-    prediction.loadModel()
+    prediction.loadModel(prediction_speed="fast")
     return prediction
 
 def figure_out_image_tags(b_file, min_prob=10):
