@@ -2,6 +2,13 @@ from imageai.Prediction import ImagePrediction
 import os
 import tempfile
 
+# init predictor
+execution_path = os.getcwd()
+prediction = ImagePrediction()
+prediction.setModelTypeAsResNet()
+prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
+prediction.loadModel()
+
 
 def figure_out_image_tags(b_file, min_prob=10):
 
@@ -9,13 +16,6 @@ def figure_out_image_tags(b_file, min_prob=10):
     i, path = tempfile.mkstemp(suffix=".jpg")
     with open(path, 'wb') as f:
         f.write(b_file)
-
-    # init predictor
-    execution_path = os.getcwd()
-    prediction = ImagePrediction()
-    prediction.setModelTypeAsResNet()
-    prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
-    prediction.loadModel()
 
     # likely tags
     tags = []
