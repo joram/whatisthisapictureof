@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-
-
+import ClipLoader from "react-spinners/ClipLoader";
 import ImageUploader from 'react-images-upload';
 
 
@@ -11,16 +10,17 @@ class App extends Component {
     state = {
         images: [],
         tags: [],
+        waiting: false,
     }
 
     onDrop(pictures) {
         const data = new FormData();
 
-            let state = this.state;
-            state.images = []
-            state.tags = []
-            this.setState(state)
-
+        let state = this.state;
+        state.images = []
+        state.tags = []
+        state.waiting = true
+        this.setState(state)
 
         pictures.forEach(picture => {
             data.append('file', picture);
@@ -34,10 +34,10 @@ class App extends Component {
             let state = this.state;
             state.images = pictures
             state.tags = data.tags
+            state.waiting = false
             this.setState(state)
         });
     }
-
 
     render() {
         let label = ""
@@ -46,17 +46,26 @@ class App extends Component {
         }
         console.log(label)
 
+        let spinner = ""
+        if (this.state.waiting){
+            spinner = <ClipLoader
+              size={50}
+              color={"#123abc"}
+              loading={this.state.loading}
+            />
+        }
+
         return <div className="App">
             <h1>{label}</h1>
+            {spinner}
             <ImageUploader
                 withIcon={true}
                 buttonText='Choose image'
                 onChange={this.onDrop.bind(this)}
-                imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                imgExtension={['.jpg', '.gif', '.png', '.gif', '.jpeg']}
                 maxFileSize={5242880}
                 withPreview={true}
                 singleImage={true}
-                label={label}
             />
         </div>
     }

@@ -4,6 +4,7 @@ from flask import Flask, send_from_directory, request
 import boto3
 from flask_cors import CORS, cross_origin
 from predict import figure_out_image_tags
+import tempfile
 
 app = Flask(__name__, static_url_path='/', static_folder="./build/")
 cors = CORS(app)
@@ -20,14 +21,24 @@ def static_files(path):
 @cross_origin()
 @app.route('/upload', methods=['POST'])
 def upload():
-    file = request.files['file']
-    content = file.read()
-    upload_file_to_s3(file)
-    tags = figure_out_image_tags(content)
+    path, content, filename = temp_image()
+    upload_file_to_s3(content, filename)
+    tags = figure_out_image_tags(path)
     return {"tags": tags}
 
 
 # ---- helpers ----
+
+
+def temp_image():
+    file = request.files['file']
+    content = file.read()
+
+    # write temp file
+    _, path = tempfile.mkstemp(suffix=".jpg")
+    with open(path, 'wb') as f:
+        f.write(content)
+    return path, content, file.filename
 
 
 s3 = boto3.client(
@@ -37,22 +48,11 @@ s3 = boto3.client(
 )
 
 
-def upload_file_to_s3(file, acl="public-read"):
+def upload_file_to_s3(content, filename, acl="public-read"):
     bucket_name = os.environ.get("BUCKET_NAME")
     try:
-
-        s3.upload_fileobj(
-            file,
-            bucket_name,
-            file.filename,
-            ExtraArgs={
-                "ACL": acl,
-                "ContentType": file.content_type
-            }
-        )
-
+        s3.put_object(Body=content, Bucket=bucket_name, Key=filename)
     except Exception as e:
-        # This is a catch all exception, edit this part to fit your needs.
         print("Something Happened: ", e)
         return e
 

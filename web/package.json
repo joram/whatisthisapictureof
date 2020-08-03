@@ -9,7 +9,8 @@
     "react-dom": "^16.13.1",
     "react-images-upload": "^1.2.8",
     "react-responsive-carousel": "^3.2.9",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "react-spinners": "^0.9.0"
   },
   "scripts": {
     "start": "react-scripts start",
