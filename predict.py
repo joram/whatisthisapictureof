@@ -2,13 +2,20 @@ from imageai.Prediction import ImagePrediction
 import os
 import tempfile
 
-# init predictor
-execution_path = os.getcwd()
-prediction = ImagePrediction()
-prediction.setModelTypeAsResNet()
-prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
-prediction.loadModel()
+prediction = None
 
+def get_prediction():
+    global prediction
+    if prediction is not None:
+        return prediction
+
+    # init predictor
+    execution_path = os.getcwd()
+    prediction = ImagePrediction()
+    prediction.setModelTypeAsResNet()
+    prediction.setModelPath(os.path.join(execution_path, "resnet50_weights_tf_dim_ordering_tf_kernels.h5"))
+    prediction.loadModel()
+    return prediction
 
 def figure_out_image_tags(b_file, min_prob=10):
 
