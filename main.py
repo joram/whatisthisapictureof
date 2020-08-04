@@ -2,8 +2,7 @@
 import os
 from flask import Flask, send_from_directory, request
 from flask_cors import CORS, cross_origin
-from predict import figure_out_image_tags
-from db import get_image, insert_image, get_image_id
+from db import get_image, insert_image, get_image_id, list_all_images
 from utils import get_temp_image_from_request, upload_file_to_s3, put_message_on_sqs
 
 
@@ -41,6 +40,13 @@ def upload_image():
 @app.route('/api/v0/image/<string:uid>', methods=['GET'])
 def get_image_info(uid):
     return get_image(uid)
+
+
+@cross_origin()
+@app.route('/api/v0/images', methods=['GET'])
+def list_images():
+    data = list_all_images()
+    return {"images": data}
 
 
 if __name__ == "__main__":

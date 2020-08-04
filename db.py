@@ -62,20 +62,32 @@ def remove_table():
     execute_query(connection, remove_images_table)
 
 
-def get_image(uid):
-    select_image = f"SELECT * FROM images WHERE id='{uid}'"
-    connection = create_connection()
-    results = execute_query(connection, select_image, results=True)
-    if len(results) == 0:
-        return None
-
-    (uid, s3_path, tags, created_at) = results[0]
+def _row_to_dict(row):
+    (uid, s3_path, tags, created_at) = row
     return {
         "id": uid,
         "s3_path": s3_path,
         "tags": tags,
         "created_at": created_at
     }
+
+
+def get_image(uid):
+    select_image = f"SELECT * FROM images WHERE id='{uid}'"
+    connection = create_connection()
+    results = execute_query(connection, select_image, results=True)
+    if len(results) == 0:
+        return None
+    return _row_to_dict(results[0])
+
+
+def list_all_images():
+    select_images = f"SELECT * FROM images"
+    connection = create_connection()
+    results = execute_query(connection, select_images, results=True)
+    if len(results) == 0:
+        return None
+    return [_row_to_dict(row) for row in results]
 
 
 def insert_image(uid, s3_path, tags):

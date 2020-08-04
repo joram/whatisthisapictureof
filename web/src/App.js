@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import ClipLoader from "react-spinners/ClipLoader";
+import TagCloud from 'react-tag-cloud';
 import ImageUploader from 'react-images-upload';
 
 
@@ -58,7 +59,6 @@ class App extends Component {
         if(this.state.tags.length > 0){
             label = this.state.tags.join(", ")
         }
-        console.log(label)
 
         let spinner = ""
         if (this.state.waiting){
@@ -68,6 +68,8 @@ class App extends Component {
               loading={this.state.loading}
             />
         }
+
+        let tag_cloud = "";
 
         return <div className="App">
             <br/>
@@ -83,6 +85,7 @@ class App extends Component {
                 withPreview={true}
                 singleImage={true}
             />
+            {tag_cloud}
         </div>
     }
 }

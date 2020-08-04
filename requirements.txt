@@ -13,3 +13,4 @@ imageai
 flask_cors
 uwsgi
 psycopg2
+requests
