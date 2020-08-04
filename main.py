@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import os
 from flask import Flask, send_from_directory, request
-import boto3
 from flask_cors import CORS, cross_origin
 from predict import figure_out_image_tags
-from db import create_image, get_image
-import tempfile
+from db import get_image, insert_image, get_image_id
+from utils import get_temp_image_from_request, upload_file_to_s3, put_message_on_sqs
+
 
 app = Flask(__name__, static_url_path='/', static_folder="./build/")
 cors = CORS(app)
@@ -20,45 +20,27 @@ def static_files(path):
 
 
 @cross_origin()
-@app.route('/upload', methods=['POST'])
-def upload():
-    path, content, filename = temp_image()
-    s3_path = upload_file_to_s3(content, filename)
-    tags = figure_out_image_tags(path)
-    image_uid = create_image(s3_path, ",".join(tags))
-    print("wrote image:", get_image(image_uid))
-    return {"tags": tags}
+@app.route('/api/v0/image', methods=['POST'])
+def upload_image():
+
+    image_uid = get_image_id()
+    path, content, filename = get_temp_image_from_request()
+    uid_filename = f"{image_uid}{os.path.splitext(filename)[1]}"
+
+    s3_path = upload_file_to_s3(content, uid_filename)
+
+    # tags = figure_out_image_tags(path)
+    tags = []
+    insert_image(image_uid, s3_path, ",".join(tags))
+    put_message_on_sqs(image_uid)
+
+    return {"tags": tags, "id": image_uid}
 
 
-# ---- helpers ----
-
-
-def temp_image():
-    file = request.files['file']
-    content = file.read()
-
-    # write temp file
-    _, path = tempfile.mkstemp(suffix=".jpg")
-    with open(path, 'wb') as f:
-        f.write(content)
-    return path, content, file.filename
-
-
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=os.environ.get("AWS_KEY"),
-    aws_secret_access_key=os.environ.get("AWS_SECRET")
-)
-
-
-def upload_file_to_s3(content, filename):
-    bucket_name = os.environ.get("BUCKET_NAME")
-    try:
-        s3.put_object(Body=content, Bucket=bucket_name, Key=filename)
-    except Exception as e:
-        print("Something Happened: ", e)
-        return e
-    return os.path.join(bucket_name, filename)
+@cross_origin()
+@app.route('/api/v0/image/<string:uid>', methods=['GET'])
+def get_image_info(uid):
+    return get_image(uid)
 
 
 if __name__ == "__main__":

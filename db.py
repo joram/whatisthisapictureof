@@ -26,7 +26,6 @@ def create_connection():
             host=host,
             port=port,
         )
-        print("Connection to PostgreSQL DB successful")
     except OperationalError as e:
         print(f"The error '{e}' occurred")
     return connection
@@ -67,6 +66,9 @@ def get_image(uid):
     select_image = f"SELECT * FROM images WHERE id='{uid}'"
     connection = create_connection()
     results = execute_query(connection, select_image, results=True)
+    if len(results) == 0:
+        return None
+
     (uid, s3_path, tags, created_at) = results[0]
     return {
         "id": uid,
@@ -92,13 +94,3 @@ def update_image_tags(uid, tags):
     insert_image = f"UPDATE images SET tags='{tags}' WHERE id='{uid}';"
     connection = create_connection()
     execute_query(connection, insert_image)
-
-
-create_table()
-# uid = create_image("path", "tag1,tag2")
-# img = get_image(uid)
-# print("got image: ", img)
-# update_image_tags(uid, "tag3,tag4")
-# img = get_image(uid)
-# print("got image: ", img)
-# remove_table()

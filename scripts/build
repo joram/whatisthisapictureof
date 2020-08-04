@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+cd web
+npm run-script build
+cd ..
+rm -r build
+mv ./web/build .

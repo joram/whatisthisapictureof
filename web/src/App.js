@@ -13,6 +13,21 @@ class App extends Component {
         waiting: false,
     }
 
+    updateTags(id) {
+        fetch(`/api/v0/image/${id}`, { method: 'GET'})
+        .then(body => body.json())
+        .then(data => {
+            if(data.tags === ""){
+                setTimeout(this.updateTags.bind(this), 1000, id)
+            } else {
+                let state = this.state;
+                state.tags = data.tags
+                state.waiting = false
+                this.setState(state)
+            }
+        })
+    }
+
     onDrop(pictures) {
         const data = new FormData();
 
@@ -27,15 +42,14 @@ class App extends Component {
             data.append('filename', picture.name);
         })
 
-        fetch("/upload", { method: 'POST', body: data })
+        fetch("/api/v0/image", { method: 'POST', body: data })
         .then(body => body.json())
         .then(data => {
             console.log(data)
             let state = this.state;
             state.images = pictures
-            state.tags = data.tags
-            state.waiting = false
             this.setState(state)
+            this.updateTags(data.id)
         });
     }
 
