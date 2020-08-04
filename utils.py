@@ -33,7 +33,12 @@ s3 = boto3.client(
     aws_secret_access_key=os.environ.get("AWS_SECRET")
 )
 
-sqs = boto3.resource('sqs', region_name="ca-central-1")
+sqs = boto3.resource(
+    'sqs',
+    aws_access_key_id=os.environ.get("AWS_KEY"),
+    aws_secret_access_key=os.environ.get("AWS_SECRET"),
+    region_name="ca-central-1"
+)
 
 
 def upload_file_to_s3(content, filename):
