@@ -21,7 +21,7 @@ class App extends Component {
                 setTimeout(this.updateTags.bind(this), 1000, id)
             } else {
                 let state = this.state;
-                state.tags = data.tags
+                state.tags = data.tags.split(",")
                 state.waiting = false
                 this.setState(state)
             }
