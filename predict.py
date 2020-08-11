@@ -1,8 +1,8 @@
 from imageai.Prediction import ImagePrediction
 import os
-import tempfile
 
 prediction = None
+
 
 def get_prediction():
     global prediction
@@ -18,10 +18,13 @@ def get_prediction():
 
 def figure_out_image_tags(path, min_prob=10):
     tags = []
-    predictions, percentage_probabilities = get_prediction().predictImage(path, result_count=10)
-    for index in range(len(predictions)):
-        name = predictions[index]
-        prob = percentage_probabilities[index]
-        if prob > min_prob:
-            tags.append(name.replace("_", " "))
+    try:
+        predictions, percentage_probabilities = get_prediction().predictImage(path, result_count=10)
+        for index in range(len(predictions)):
+            name = predictions[index]
+            prob = percentage_probabilities[index]
+            if prob > min_prob:
+                tags.append(name.replace("_", " "))
+    except Exception as e:
+        print(e)
     return tags
