@@ -4,6 +4,7 @@ import 'react-tabs/style/react-tabs.css';
 import {Tab,TabList, Tabs, TabPanel} from "react-tabs";
 import UploadImagePage from "./pages/uploadImage";
 import TagCloudPage from "./pages/tagCloudPage";
+import AllUploadedImages from "./pages/allUploadedImages";
 
 
 class App extends Component {
@@ -12,6 +13,7 @@ class App extends Component {
             <TabList>
                 <Tab>Upload Image</Tab>
                 <Tab>Tag Cloud</Tab>
+                <Tab>All Uploaded Images</Tab>
             </TabList>
 
             <TabPanel>
@@ -20,6 +22,10 @@ class App extends Component {
 
             <TabPanel>
                 <TagCloudPage/>
+            </TabPanel>
+
+            <TabPanel>
+                <AllUploadedImages/>
             </TabPanel>
 
          </Tabs>
