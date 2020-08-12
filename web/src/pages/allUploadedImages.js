@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Gallery from 'react-grid-gallery';
+import ImagesPage from "./imagesPage";
 
 
 class AllUploadedImages extends Component {
@@ -19,25 +19,7 @@ class AllUploadedImages extends Component {
     }
 
     render() {
-        let images = []
-        this.state.images.forEach(image => {
-            let tagStrings = image.tags.split(",")
-            let tags = []
-            tagStrings.forEach(t => {
-                tags.push({value:t, title:t})
-            })
-
-            images.push({
-                src: image.s3_path,
-                thumbnail: image.s3_path,
-                // thumbnailWidth: 320,
-                // thumbnailHeight: 212,
-                tags: tags,
-                caption: image.id
-            })
-        })
-        images.sort(function (a, b) { return 0.5 - Math.random() })
-        return <Gallery images={images}/>
+        return <ImagesPage images={this.state.images} />
     }
 }
 
